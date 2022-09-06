@@ -18,5 +18,8 @@ REDIS_SERVER_OBJ=server.o
 # 所有要编译的文件
 all: $(REDIS_SERVER_NAME)
 
-# 编译redis-server
+# 编译redis-server,对应REDIS_SERVER_OBJ的o文件
 $(REDIS_SERVER_NAME): $(REDIS_SERVER_OBJ)
+
+clean:
+	rm -rf $(REDIS_SERVER_NAME) *.o
