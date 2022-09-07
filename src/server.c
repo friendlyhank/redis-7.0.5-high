@@ -29,10 +29,60 @@
 
 #include "server.h"
 
-/* Log levels 日志等级 */
-#define LL_DEBUG 0
-#define LL_NOTICE 2
-#define LL_WARNING 3
+
+#include <time.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <assert.h>
+#include <ctype.h>
+#include <stdarg.h>
+#include <arpa/inet.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/file.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/uio.h>
+#include <sys/un.h>
+#include <limits.h>
+#include <float.h>
+#include <math.h>
+#include <sys/resource.h>
+#include <sys/utsname.h>
+#include <locale.h>
+#include <sys/socket.h>
+#include <sys/resource.h>
+
+void serverLogRaw(int level,const char *msg){
+    const int syslogLevelMap[] = {LOG_DEBUG,LOG_INFO,LOG_NOTICE,LOG_WARNING}; // 日志等级数组
+    const char *c = ".-*#";
+    FILE *fp;
+    char buf[64];
+    int rawmode = (level & LL_RAW);
+    int log_to_stdout = server.logfile[0] == '\0';// 判断是否有设置日志文件路径
+
+    level &= 0xff; /* clear flags */
+    if (level < server.verbosity) return;
+
+    fp = log_to_stdout ? stdout : fopen(server.logfile,"a");
+    if(!fp) return;
+
+    if(rawmode) {
+        fprintf(fp, "%s", msg);// 不需要带时间的输出
+    }else{
+        int off;
+        struct timeval tv;// 时间信息
+        int role_char;
+        pid_t pid = getpid(); // 获取进程标识
+
+        gettimeofday(&tv,NULL);
+        struct tm tm;
+
+        fprintf(fp,"%d:%c %s %c %s\n",
+                (int)getpid(),role_char,buf,c[level],msg);
+    }
+}
 
 /* Like serverLogRaw() but with printf-alike support. This is the function that
  * is used across the code. The raw version is only used in order to dump
