@@ -29,7 +29,6 @@
 
 #include "server.h"
 
-
 #include <time.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -54,46 +53,57 @@
 #include <sys/socket.h>
 #include <sys/resource.h>
 
-void serverLogRaw(int level,const char *msg){
-    const int syslogLevelMap[] = {LOG_DEBUG,LOG_INFO,LOG_NOTICE,LOG_WARNING}; // 日志等级数组
-    const char *c = ".-*#";
-    FILE *fp;
-    char buf[64];
-    int rawmode = (level & LL_RAW);
-    int log_to_stdout = server.logfile[0] == '\0';// 判断是否有设置日志文件路径
+/*================================= Globals ================================= */
+/* Global vars */
+// extern struct redisServer server,设置全局的参数,不然会报Undefined symbols for architecture x86_64
+struct redisServer server; /*Server global state */
 
-    level &= 0xff; /* clear flags */
+/* Low level logging. To use only for very big messages, otherwise
+ * serverLog() is to prefer. */
+void serverLogRaw(int level, const char *msg) {
+    const int syslogLevelMap[] = { LOG_DEBUG, LOG_INFO, LOG_NOTICE, LOG_WARNING };
+    const char *c = ".-*#";
+    FILE *fp;//文件描述符
+    char buf[64];
+    int rawmode = (level & LL_RAW); // 是否需要打印时间
+    int log_to_stdout = server.logfile[0] == '\0';//控制台输出或文件输出
+
+    level &= 0xff; /*判断等级参数 clear flags */
     if (level < server.verbosity) return;
 
     fp = log_to_stdout ? stdout : fopen(server.logfile,"a");
-    if(!fp) return;
+    if (!fp) return;
 
-    if(rawmode) {
-        fprintf(fp, "%s", msg);// 不需要带时间的输出
+    if (rawmode) {
+        fprintf(fp,"%s",msg);
     }else{
         int off;
-        struct timeval tv;// 时间信息
-        int role_char;
-        pid_t pid = getpid(); // 获取进程标识
+        struct timeval tv; // 时间
+        int role_char; // 日志标识
+        pid_t pid = getpid();// 获取进程pid
 
         gettimeofday(&tv,NULL);
         struct tm tm;
 
         fprintf(fp,"%d:%c %s %c %s\n",
-                (int)getpid(),role_char,buf,c[level],msg);
+                (int)getpid(),role_char, buf,c[level],msg);
     }
+    fflush(fp);
+    if (!log_to_stdout) fclose(fp);//如果不是控制台输出则关闭文件
 }
 
 /* Like serverLogRaw() but with printf-alike support. This is the function that
  * is used across the code. The raw version is only used in order to dump
- * the INFO output on crash. */
-// 服务端日志打印输出方法
+ * the INFO output on crash.
+ * 服务端日志打印*/
 void _serverLog(int level, const char *fmt, ...) {
+    char msg[LOG_MAX_LEN];
 
+    serverLogRaw(level,msg);
 }
 
 int main(int argc, char **argv) {
-    serverLog(LL_WARNING, "oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo");
+    serverLog(LL_WARNING,"oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo");
 }
 
 
