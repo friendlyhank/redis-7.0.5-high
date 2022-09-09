@@ -106,7 +106,12 @@ void serverLogRaw(int level, const char *msg) {
  * the INFO output on crash.
  * 服务端日志打印*/
 void _serverLog(int level, const char *fmt, ...) {
+    va_list ap;
     char msg[LOG_MAX_LEN];
+
+    va_start(ap, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
 
     serverLogRaw(level,msg);
 }
