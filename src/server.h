@@ -52,11 +52,19 @@
 #define LL_RAW (1<<10) /* Modifier to log without timestamp */
 
 struct redisServer {
+    /*常规参数 General */
+    pid_t pid;                  /* Main process pid. */
+    int sentinel_mode;          /*是否哨兵模式 True if this instance is a Sentinel. */
+
     /* Configuration */
     int verbosity;                  /*配置中的日志等级 Loglevel in redis.conf */
 
     /* Logging */
     char *logfile;                  /*日志文件路径 Path of log file */
+    int syslog_enabled;             /*是否系统日志输出 Is syslog enabled? */
+
+    /* Replication (slave) */
+    char *masterhost;               /*主节点的host Hostname of master */
 };
 
 /*-----------------------------------------------------------------------------

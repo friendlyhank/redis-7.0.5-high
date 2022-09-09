@@ -84,12 +84,21 @@ void serverLogRaw(int level, const char *msg) {
 
         gettimeofday(&tv,NULL);
         struct tm tm;
-
+        off = strftime(buf,sizeof(buf),"%d %b %Y %H:%M:%S.",&tm);
+        snprintf(buf+off,sizeof(buf)-off,"%03d",(int)tv.tv_usec/1000);
+        if (server.sentinel_mode) {
+            role_char = 'X'; /* Sentinel. */
+        }else if (pid != server.pid) {//是否主进程
+            role_char = 'C'; /*不是主进程则是RDB,AOF的子进程在跑 RDB / AOF writing child. */
+        }else{
+            role_char = (server.masterhost ? 'S':'M'); /*主节点用M,子节点用S Slave or Master. */
+        }
         fprintf(fp,"%d:%c %s %c %s\n",
                 (int)getpid(),role_char, buf,c[level],msg);
     }
     fflush(fp);
     if (!log_to_stdout) fclose(fp);//如果不是控制台输出则关闭文件
+    if (server.syslog_enabled) syslog(syslogLevelMap[level], "%s", msg);// 系统日志输出
 }
 
 /* Like serverLogRaw() but with printf-alike support. This is the function that
