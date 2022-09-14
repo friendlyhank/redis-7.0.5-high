@@ -129,6 +129,7 @@ void _serverLog(int level, const char *fmt, ...) {
 
 // initServerConfig - 初始化服务端配置
 void initServerConfig(void) {
+    initConfigValues(); // 初始化默认配置信息
     /* Replication related */
     server.masterhost = NULL;
 }

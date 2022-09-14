@@ -83,6 +83,9 @@ void _serverLog(int level, const char *fmt, ...)
 __attribute__((format(printf, 2, 3)));
 void serverLogRaw(int level, const char *msg);
 
+/*配置信息相关 Type of configuration. */
+void initConfigValues();
+
 /* Use macro for checking log level to avoid evaluating arguments in cases log
  * should be ignored due to low level. */
 #define serverLog(level, ...) do {\
