@@ -58,6 +58,15 @@
 // extern struct redisServer server,设置全局的参数,不然会报Undefined symbols for architecture x86_64
 struct redisServer server; /*Server global state */
 
+/*============================ Utility functions ============================ */
+
+/* We use a private localtime implementation which is fork-safe. The logging
+ * function of Redis may be called from other threads.
+ * 我们使用一个私有的本地时间实现，它是 fork 安全的。 日志记录
+  * Redis 的函数可能被其他线程调用。
+ * */
+void nolocks_localtime(struct tm *tmp, time_t t, time_t tz, int dst);
+
 /* Low level logging. To use only for very big messages, otherwise
  * serverLog() is to prefer. */
 void serverLogRaw(int level, const char *msg) {
@@ -67,38 +76,40 @@ void serverLogRaw(int level, const char *msg) {
     char buf[64];
     int rawmode = (level & LL_RAW); // 是否需要打印时间
 //    int log_to_stdout = server.logfile[0] == '\0';//控制台输出或文件输出
-//
-//    level &= 0xff; /*判断等级参数 clear flags */
-//    if (level < server.verbosity) return;
-//
-//    fp = log_to_stdout ? stdout : fopen(server.logfile,"a");
-//    if (!fp) return;
-//
-//    if (rawmode) {
-//        fprintf(fp,"%s",msg);
-//    }else{
-//        int off;
-//        struct timeval tv; // 时间
-//        int role_char; // 日志标识
-//        pid_t pid = getpid();// 获取进程pid
-//
-//        gettimeofday(&tv,NULL);
-//        struct tm tm;
-//        off = strftime(buf,sizeof(buf),"%d %b %Y %H:%M:%S.",&tm);
-//        snprintf(buf+off,sizeof(buf)-off,"%03d",(int)tv.tv_usec/1000);
-//        if (server.sentinel_mode) {
-//            role_char = 'X'; /* Sentinel. */
-//        }else if (pid != server.pid) {//是否主进程
-//            role_char = 'C'; /*不是主进程则是RDB,AOF的子进程在跑 RDB / AOF writing child. */
-//        }else{
-//            role_char = (server.masterhost ? 'S':'M'); /*主节点用M,子节点用S Slave or Master. */
-//        }
-//        fprintf(fp,"%d:%c %s %c %s\n",
-//                (int)getpid(),role_char, buf,c[level],msg);
-//    }
-//    fflush(fp);
-//    if (!log_to_stdout) fclose(fp);//如果不是控制台输出则关闭文件
-//    if (server.syslog_enabled) syslog(syslogLevelMap[level], "%s", msg);// 系统日志输出
+    int log_to_stdout =1;
+
+    level &= 0xff; /*判断等级参数 clear flags */
+    if (level < server.verbosity) return;
+
+    fp = log_to_stdout ? stdout : fopen(server.logfile,"a");
+    if (!fp) return;
+
+    if (rawmode) {
+        fprintf(fp,"%s",msg);
+    }else{
+        int off;
+        struct timeval tv; // 时间
+        int role_char; // 日志标识
+        pid_t pid = getpid();// 获取进程pid
+
+        gettimeofday(&tv,NULL);
+        struct tm tm;
+        nolocks_localtime(&tm,tv.tv_sec,server.timezone,server.daylight_active);
+        off = strftime(buf,sizeof(buf),"%d %b %Y %H:%M:%S.",&tm);
+        snprintf(buf+off,sizeof(buf)-off,"%03d",(int)tv.tv_usec/1000);
+        if (server.sentinel_mode) {
+            role_char = 'X'; /* Sentinel. */
+        }else if (pid != server.pid) {//是否主进程
+            role_char = 'C'; /*不是主进程则是RDB,AOF的子进程在跑 RDB / AOF writing child. */
+        }else{
+            role_char = (server.masterhost ? 'S':'M'); /*主节点用M,子节点用S Slave or Master. */
+        }
+        fprintf(fp,"%d:%c %s %c %s\n",
+                (int)getpid(),role_char, buf,c[level],msg);
+    }
+    fflush(fp);
+    if (!log_to_stdout) fclose(fp);//如果不是控制台输出则关闭文件
+    if (server.syslog_enabled) syslog(syslogLevelMap[level], "%s", msg);// 系统日志输出
 }
 
 /* Like serverLogRaw() but with printf-alike support. This is the function that
@@ -116,7 +127,22 @@ void _serverLog(int level, const char *fmt, ...) {
     serverLogRaw(level,msg);
 }
 
+// initServerConfig - 初始化服务端配置
+void initServerConfig(void) {
+    /* Replication related */
+    server.masterhost = NULL;
+}
+
 int main(int argc, char **argv) {
+    struct timeval tv;
+    int j;
+    char config_from_stdin = 0;
+
+    tzset(); /*设置时区 Populates 'timezone' global. */
+    gettimeofday(&tv,NULL);// 获取当前时间
+
+    initServerConfig();// 初始化配置信息
+
     serverLog(LL_WARNING,"oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo");
 }
 

@@ -13,10 +13,13 @@
 # Just use 'make dep', but this is only needed by developers.
 
 REDIS_SERVER_NAME=redis-server$(PROG_SUFFIX)
-REDIS_SERVER_OBJ=server.o
+REDIS_SERVER_OBJ=server.o localtime.o
 
 # 所有要编译的文件
 all: $(REDIS_SERVER_NAME)
+	@echo ""
+	@echo "Hint: It's a good idea to run 'make test' ;)"
+	@echo ""
 
 # 编译redis-server,对应REDIS_SERVER_OBJ的o文件
 $(REDIS_SERVER_NAME): $(REDIS_SERVER_OBJ)

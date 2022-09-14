@@ -65,6 +65,11 @@ struct redisServer {
 
     /* Replication (slave) */
     char *masterhost;               /*主节点的host Hostname of master */
+    int masterport;                 /*主节点的port Port of master */
+
+    /*时间缓存 time cache */
+    time_t timezone;            /*时区 Cached timezone. As set by tzset(). */
+    int daylight_active;        /* Currently in daylight saving time. */
 };
 
 /*-----------------------------------------------------------------------------
