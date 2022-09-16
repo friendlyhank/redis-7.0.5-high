@@ -13,7 +13,7 @@
 # Just use 'make dep', but this is only needed by developers.
 
 REDIS_SERVER_NAME=redis-server$(PROG_SUFFIX)
-REDIS_SERVER_OBJ=server.o localtime.o config.o
+REDIS_SERVER_OBJ=dict.o server.o localtime.o config.o
 
 # 所有要编译的文件
 all: $(REDIS_SERVER_NAME)

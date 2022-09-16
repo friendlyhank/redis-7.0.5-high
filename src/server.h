@@ -41,6 +41,8 @@
 #include <sys/socket.h>
 #include <signal.h>
 
+#include "dict.h"    /*hash表 Hash tables */
+
 /*静态服务配置 Static server configuration */
 #define LOG_MAX_LEN    1024 /*消息的最大长度 Default maximum length of syslog messages.*/
 
@@ -77,6 +79,7 @@ struct redisServer {
  *----------------------------------------------------------------------------*/
 
 extern struct redisServer server;
+extern dictType sdsHashDictType;
 
 /* Core functions */
 void _serverLog(int level, const char *fmt, ...)

@@ -127,6 +127,12 @@ void _serverLog(int level, const char *fmt, ...) {
     serverLogRaw(level,msg);
 }
 
+/* sds的hash字典类型 Dict for case-insensitive search using sds objects with a zmalloc
+ * allocated object as the value. */
+dictType sdsHashDictType ={
+
+};
+
 // initServerConfig - 初始化服务端配置
 void initServerConfig(void) {
     initConfigValues(); // 初始化默认配置信息
