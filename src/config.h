@@ -1,5 +1,4 @@
-/* Configuration file parsing and CONFIG GET/SET commands implementation.
- *
+/*
  * Copyright (c) 2009-2012, Salvatore Sanfilippo <antirez at gmail dot com>
  * All rights reserved.
  *
@@ -27,33 +26,3 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "server.h"
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <glob.h>
-#include <string.h>
-
-// 标准配置信息
-typedef struct standardConfig standardConfig;
-
-// 标准配置信息结构体
-struct standardConfig {
-    const char *name; /* 配置名称 The user visible name of this config */
-};
-
-// 配置信息结构体
-standardConfig static_configs[] = {
-
-};
-
-/* Initialize configs to their default values and create and populate the
- * runtime configuration dictionary.
- * 初始化默认配置信息并且创建配置字段
- * 配置信息使用hash表进行存储
- * */
-void initConfigValues() {
-    for (standardConfig *config = static_configs;config->name != NULL;config++){
-
-    }
-}
