@@ -1,11 +1,8 @@
-/* Hash Tables Implementation.
+/* SDSLib 2.0 -- A C dynamic strings library
  *
- * This file implements in memory hash tables with insert/del/replace/find/
- * get-random-element operations. Hash tables will auto resize if needed
- * tables of power of two in size are used, collisions are handled by
- * chaining. See the source code for more information... :)
- *
- * Copyright (c) 2006-2012, Salvatore Sanfilippo <antirez at gmail dot com>
+ * Copyright (c) 2006-2015, Salvatore Sanfilippo <antirez at gmail dot com>
+ * Copyright (c) 2015, Oran Agra
+ * Copyright (c) 2015, Redis Labs, Inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +30,4 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "dict.h"
-
-/*创建一个新的hash表  Create a new hash table */
-dict *dictCreate(dictType *type)
-{
-
-}
+typedef char *sds;

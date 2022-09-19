@@ -37,6 +37,25 @@
 // 标准配置信息
 typedef struct standardConfig standardConfig;
 
+typedef int (*apply_fn)(const char **err);
+// typeInterface - 根据不同数据类型初始化接口
+typedef struct typeInterface {
+    /*服务启动时，初始化默认值 Called on server start, to init the server with default value */
+    void (*init)(standardConfig *config);
+    /*
+     * 服务启动或者在配置set的时候使用,1返回成功,2表示没有进行实际修改,0表示有错误并返回实际错误
+     * Called on server startup and CONFIG SET, returns 1 on success,
+     * 2 meaning no actual change done, 0 on error and can set a verbose err
+     * string */
+    int (*set)(standardConfig *config, sds *argv, int argc, const char **err);
+    /* Optional: called after `set()` to apply the config change. Used only in
+    * the context of CONFIG SET. Returns 1 on success, 0 on failure.
+    * Optionally set err to a static error string. */
+    apply_fn apply;
+    /*配置需要重写的时候使用 Called on CONFIG REWRITE, required to rewrite the config state */
+    void (*rewrite)(standardConfig *config, const char *name, struct rewriteConfigState *state);
+} typeInterface;
+
 // 标准配置信息结构体
 struct standardConfig {
     const char *name; /* 配置名称 The user visible name of this config */
@@ -44,15 +63,26 @@ struct standardConfig {
     unsigned int flags; /*特殊配置的标记 Flags for this specific config */
 };
 
+/*配置重写的状态 The config rewrite state. */
+struct rewriteConfigState {
+
+};
+
+// embedCommonConfig - 通用配置信息
 #define embedCommonConfig(config_name, config_alias, config_flags) \
     .name = (config_name), \
     .alias = (config_alias), \
     .flags = (config_flags),
 
+#define embedConfigInterface(initfn, setfn, getfn, rewritefn, applyfn) .interface = { \
+},
+
 #define ALLOW_EMPTY_STRING 0
 
+// createStringConfig - 创建string配置信息
 #define createStringConfig(name, alias, flags, empty_to_null, config_addr, default, is_valid, apply) { \
     embedCommonConfig(name, alias, flags) \
+    embedConfigInterface(stringConfigInit, stringConfigSet, stringConfigGet, stringConfigRewrite, apply) \
 }
 
 // 配置信息结构体
