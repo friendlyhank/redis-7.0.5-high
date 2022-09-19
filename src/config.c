@@ -40,11 +40,24 @@ typedef struct standardConfig standardConfig;
 // 标准配置信息结构体
 struct standardConfig {
     const char *name; /* 配置名称 The user visible name of this config */
+    const char *alias; /*配置的别名 An alias that can also be used for this config */
+    unsigned int flags; /*特殊配置的标记 Flags for this specific config */
 };
+
+#define embedCommonConfig(config_name, config_alias, config_flags) \
+    .name = (config_name), \
+    .alias = (config_alias), \
+    .flags = (config_flags),
+
+#define ALLOW_EMPTY_STRING 0
+
+#define createStringConfig(name, alias, flags, empty_to_null, config_addr, default, is_valid, apply) { \
+    embedCommonConfig(name, alias, flags) \
+}
 
 // 配置信息结构体
 standardConfig static_configs[] = {
-
+        createStringConfig("logfile", NULL, IMMUTABLE_CONFIG, ALLOW_EMPTY_STRING, server.logfile, "", NULL, NULL)
 };
 
 /* Initialize configs to their default values and create and populate the

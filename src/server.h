@@ -86,6 +86,10 @@ void _serverLog(int level, const char *fmt, ...)
 __attribute__((format(printf, 2, 3)));
 void serverLogRaw(int level, const char *msg);
 
+/*配置信息 Configuration */
+/*配置信息标志 Configuration Flags */
+#define IMMUTABLE_CONFIG (1ULL<<0) /*是否在启动的时候设置 Can this value only be set at startup? */
+
 /*配置信息相关 Type of configuration. */
 void initConfigValues();
 
