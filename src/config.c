@@ -61,6 +61,7 @@ struct standardConfig {
     const char *name; /* 配置名称 The user visible name of this config */
     const char *alias; /*配置的别名 An alias that can also be used for this config */
     unsigned int flags; /*特殊配置的标记 Flags for this specific config */
+    typeInterface interface; /*定义接口类型的函数指针 The function pointers that define the type interface */
 };
 
 /*配置重写的状态 The config rewrite state. */
