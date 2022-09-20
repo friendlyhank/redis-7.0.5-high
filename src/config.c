@@ -34,6 +34,19 @@
 #include <glob.h>
 #include <string.h>
 
+// string类型的配置数据
+typedef struct stringConfigData {
+    char **config; /*具体配置字段的指针地址(用于赋值) Pointer to the server config this value is stored in. */
+    const char *default_value; /*默认的值 Default value of the config on rewrite. */
+    int convert_empty_to_null; /*是否允许为空值 Boolean indicating if empty SDS strings should
+                                  be stored as a NULL value. */
+} stringConfigData;
+
+// 具体类型配置的数据
+typedef union typeData {
+    stringConfigData string;
+} typeData;
+
 // 标准配置信息
 typedef struct standardConfig standardConfig;
 
@@ -64,6 +77,8 @@ struct standardConfig {
     const char *alias; /*配置的别名 An alias that can also be used for this config */
     unsigned int flags; /*特殊配置的标记 Flags for this specific config */
     typeInterface interface; /*根据类型实现接口方法 The function pointers that define the type interface */
+    typeData data; /*具体类型的配置数据 The type specific data exposed used by the interface */
+    configType type; /*配置数据类型 The type of config this is. */
 };
 
 /*配置重写的状态 The config rewrite state. */
@@ -99,7 +114,8 @@ struct rewriteConfigState {
 
 /*string类型配置初始化 String Configs */
 static void stringConfigInit(standardConfig *config) {
-
+    // 初始化默认值,如果允许为空并且没有没有值，则设置为NULL
+    config->data.string.config = (config->data.string.convert_empty_to_null && !config->data.string.default_value) ? NULL : zstrdup(config->data.string.default_value);
 }
 
 /*string类型配置设置 */
@@ -123,6 +139,12 @@ static void stringConfigRewrite(standardConfig *config, const char *name, struct
 #define createStringConfig(name, alias, flags, empty_to_null, config_addr, default, is_valid, apply) { \
     embedCommonConfig(name, alias, flags) \
     embedConfigInterface(stringConfigInit, stringConfigSet, stringConfigGet, stringConfigRewrite, apply) \
+    .type = STRING_CONFIG, \
+    .data.string = {                                                                                   \
+        .config = &(config_addr),                                                                          \
+        .default_value = (default), \
+        .convert_empty_to_null = (empty_to_null), \
+     } \
 }
 
 // 配置信息结构体
@@ -137,6 +159,6 @@ standardConfig static_configs[] = {
  * */
 void initConfigValues() {
     for (standardConfig *config = static_configs;config->name != NULL;config++){
-
+        if(config->interface.init) config->interface.init(config);// 如果配置需要初始化，则调用初始化方法
     }
 }

@@ -46,6 +46,7 @@
 
 #include "sds.h"     /*动态安全字符串 Dynamic safe strings */
 #include "dict.h"    /*hash表 Hash tables */
+#include "zmalloc.h" /*内存分配 total memory usage aware version of malloc/free */
 
 /*静态服务配置 Static server configuration */
 #define LOG_MAX_LEN    1024 /*消息的最大长度 Default maximum length of syslog messages.*/
@@ -93,6 +94,13 @@ void serverLogRaw(int level, const char *msg);
 /*配置信息 Configuration */
 /*配置信息标志 Configuration Flags */
 #define IMMUTABLE_CONFIG (1ULL<<0) /*是否在启动的时候设置 Can this value only be set at startup? */
+
+/*不同类型的配置枚举 Type of configuration. */
+typedef enum {
+    BOOL_CONFIG,
+    STRING_CONFIG,
+    SDS_CONFIG,
+} configType;
 
 /*配置信息相关 Type of configuration. */
 void initConfigValues();
