@@ -40,10 +40,10 @@ typedef struct standardConfig standardConfig;
 typedef int (*apply_fn)(const char **err);
 // typeInterface - 根据不同数据类型初始化接口
 typedef struct typeInterface {
-    /*服务启动时，初始化默认值 Called on server start, to init the server with default value */
+    /*服务启动初始化接口，初始化默认值 Called on server start, to init the server with default value */
     void (*init)(standardConfig *config);
     /*
-     * 服务启动或者在配置set的时候使用,1返回成功,2表示没有进行实际修改,0表示有错误并返回实际错误
+     * 设置配置接口,1返回成功,2表示没有进行实际修改,0表示有错误并返回实际错误
      * Called on server startup and CONFIG SET, returns 1 on success,
      * 2 meaning no actual change done, 0 on error and can set a verbose err
      * string */
@@ -52,7 +52,9 @@ typedef struct typeInterface {
     * the context of CONFIG SET. Returns 1 on success, 0 on failure.
     * Optionally set err to a static error string. */
     apply_fn apply;
-    /*配置需要重写的时候使用 Called on CONFIG REWRITE, required to rewrite the config state */
+    /*获取配置信息接口 Called on CONFIG GET, returns sds to be used in reply */
+    sds (*get)(standardConfig *config);
+    /*重写配置接口 Called on CONFIG REWRITE, required to rewrite the config state */
     void (*rewrite)(standardConfig *config, const char *name, struct rewriteConfigState *state);
 } typeInterface;
 
@@ -61,7 +63,7 @@ struct standardConfig {
     const char *name; /* 配置名称 The user visible name of this config */
     const char *alias; /*配置的别名 An alias that can also be used for this config */
     unsigned int flags; /*特殊配置的标记 Flags for this specific config */
-    typeInterface interface; /*定义接口类型的函数指针 The function pointers that define the type interface */
+    typeInterface interface; /*根据类型实现接口方法 The function pointers that define the type interface */
 };
 
 /*配置重写的状态 The config rewrite state. */
@@ -76,7 +78,44 @@ struct rewriteConfigState {
     .flags = (config_flags),
 
 #define embedConfigInterface(initfn, setfn, getfn, rewritefn, applyfn) .interface = { \
+    .init = (initfn), \
+    .set = (setfn), \
+    .get = (getfn), \
+    .rewrite = (rewritefn), \
+    .apply = (applyfn) \
 },
+
+/* What follows is the generic config types that are supported. To add a new
+ * config with one of these types, add it to the standardConfig table with
+ * the creation macro for each type.
+ *
+ * Each type contains the following:
+ * * A function defining how to load this type on startup.
+ * * A function defining how to update this type on CONFIG SET.
+ * * A function defining how to serialize this type on CONFIG SET.
+ * * A function defining how to rewrite this type on CONFIG REWRITE.
+ * * A Macro defining how to create this type.
+ */
+
+/*string类型配置初始化 String Configs */
+static void stringConfigInit(standardConfig *config) {
+
+}
+
+/*string类型配置设置 */
+static int stringConfigSet(standardConfig *config, sds *argv, int argc, const char **err) {
+
+}
+
+// stringConfigGet - 配置获取
+static sds stringConfigGet(standardConfig *config) {
+
+}
+
+// string配置重写
+static void stringConfigRewrite(standardConfig *config, const char *name, struct rewriteConfigState *state) {
+
+}
 
 #define ALLOW_EMPTY_STRING 0
 

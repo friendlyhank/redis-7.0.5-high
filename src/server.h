@@ -26,6 +26,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "config.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +44,7 @@
 #include <sys/socket.h>
 #include <signal.h>
 
+#include "sds.h"     /*动态安全字符串 Dynamic safe strings */
 #include "dict.h"    /*hash表 Hash tables */
 
 /*静态服务配置 Static server configuration */
