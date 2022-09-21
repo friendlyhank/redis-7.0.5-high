@@ -115,7 +115,7 @@ struct rewriteConfigState {
 /*string类型配置初始化 String Configs */
 static void stringConfigInit(standardConfig *config) {
     // 初始化默认值,如果允许为空并且没有没有值，则设置为NULL
-    *config->data.string.config = (config->data.string.convert_empty_to_null && !config->data.string.default_value) ? NULL : zstrdup(config->data.string.default_value);
+    *config->data.string.config = data.string.default_value) ? NULL : zstrdup(config->data.string.default_value);
 }
 
 /*string类型配置设置 */

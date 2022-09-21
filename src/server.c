@@ -76,7 +76,6 @@ void serverLogRaw(int level, const char *msg) {
     char buf[64];
     int rawmode = (level & LL_RAW); // 是否需要打印时间
     int log_to_stdout = server.logfile[0] == '\0';//控制台输出或文件输出
-//    int log_to_stdout =1;
 
     level &= 0xff; /*判断等级参数 clear flags */
     if (level < server.verbosity) return;
