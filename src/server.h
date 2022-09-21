@@ -103,6 +103,7 @@ typedef enum {
 } configType;
 
 /*配置信息相关 Type of configuration. */
+struct rewriteConfigState; /*重写配置的状态 Forward declaration to export API. */
 void initConfigValues();
 
 /* Use macro for checking log level to avoid evaluating arguments in cases log

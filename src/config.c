@@ -161,4 +161,7 @@ void initConfigValues() {
     for (standardConfig *config = static_configs;config->name != NULL;config++){
         if(config->interface.init) config->interface.init(config);// 如果配置需要初始化，则调用初始化方法
     }
+    printf("============================");
+    printf("%c",server.logfile);
+    printf("============================");
 }
