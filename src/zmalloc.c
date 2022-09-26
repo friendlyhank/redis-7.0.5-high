@@ -31,10 +31,22 @@
 #include "config.h"
 
 #include <string.h>
+#include "zmalloc.h"
+
+#define ASSERT_NO_SIZE_OVERFLOW(sz)
+
+/* Try allocating memory, and return NULL if failed.
+ * '*usable' is set to the usable size if non NULL.
+ * 尝试分配内存，如果失败返回NULL
+ * */
+void *ztrymalloc_usable(size_t size, size_t *usable) {
+    // 判断是否溢出
+    ASSERT_NO_SIZE_OVERFLOW(size);
+}
 
 /*内存的分配获取panic Allocate memory or panic */
 void *zmalloc(size_t size) {
-
+    void *ptr = ztrymalloc_usable(size, NULL);
 }
 
 // 字符串复制
