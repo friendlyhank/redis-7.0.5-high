@@ -37,6 +37,7 @@
 // 苹果系统自带malloc
 #elif defined(__APPLE__)
 #include <malloc/malloc.h>
+#define HAVE_MALLOC_SIZE 1 // 是否有自带的获取内存块大小的函数
 #endif
 
 char *zstrdup(const char *s); // 字符串复制
