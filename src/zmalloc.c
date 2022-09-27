@@ -30,10 +30,21 @@
 
 #include "config.h"
 
+#include <stdlib.h>
+
 #include <string.h>
 #include "zmalloc.h"
 
+#ifdef HAVE_MALLOC_SIZE
+#define PREFIX_SIZE (0) // mac有计算已分配空间大小的函数，linux则没有，需要额外的空间存储大小
 #define ASSERT_NO_SIZE_OVERFLOW(sz)
+#else
+#endif
+
+/* When using the libc allocator, use a minimum allocation size to match the
+ * jemalloc behavior that doesn't return NULL in this case.
+ */
+#define MALLOC_MIN_SIZE(x) ((x) > 0 ? (x) : sizeof(long))
 
 /* Try allocating memory, and return NULL if failed.
  * '*usable' is set to the usable size if non NULL.
@@ -42,11 +53,15 @@
 void *ztrymalloc_usable(size_t size, size_t *usable) {
     // 判断是否溢出
     ASSERT_NO_SIZE_OVERFLOW(size);
+    void *ptr = malloc(MALLOC_MIN_SIZE(size)+PREFIX_SIZE);
+
+    if(!ptr) return NULL;
 }
 
 /*内存的分配获取panic Allocate memory or panic */
 void *zmalloc(size_t size) {
     void *ptr = ztrymalloc_usable(size, NULL);
+    return ptr;
 }
 
 // 字符串复制

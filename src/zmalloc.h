@@ -40,4 +40,6 @@
 #define HAVE_MALLOC_SIZE 1 // 是否有自带的获取内存块大小的函数
 #endif
 
+void *zmalloc(size_t size); // 内存分配
 char *zstrdup(const char *s); // 字符串复制
+void *ztrymalloc_usable(size_t size, size_t *usable); //内存分配
