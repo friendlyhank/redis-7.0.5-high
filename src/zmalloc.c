@@ -38,6 +38,7 @@
 
 #include <string.h>
 #include "zmalloc.h"
+#include "atomicvar.h"
 
 #ifdef HAVE_MALLOC_SIZE
 #define PREFIX_SIZE (0) // mac有计算已分配空间大小的函数，linux则没有，需要额外的空间存储大小
