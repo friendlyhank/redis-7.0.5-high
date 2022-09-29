@@ -30,7 +30,11 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <assert.h>
 
 #include <string.h>
 #include "zmalloc.h"
@@ -43,8 +47,25 @@
 
 /* When using the libc allocator, use a minimum allocation size to match the
  * jemalloc behavior that doesn't return NULL in this case.
+ * 根据不同机器设置内存最小分配大小
  */
 #define MALLOC_MIN_SIZE(x) ((x) > 0 ? (x) : sizeof(long))
+
+#define update_zmalloc_stat_alloc(__n) atomicIncr(used_memory,(__n)) // 记录已分配内存大小
+#define update_zmalloc_stat_free(__n) atomicDecr(used_memory,(__n))  // 记录已释放内存大小
+
+static redisAtomic size_t used_memory = 0; // 全局变量，已使用内存大小
+
+// 分配内存失败错误打印
+static void zmalloc_default_oom(size_t size) {
+    fprintf(stderr, "zmalloc: Out of memory trying to allocate %zu bytes\n",
+            size);
+    fflush(stderr);
+    abort();// 终止程序
+}
+
+// 分配内存失败，打印异常
+static void (*zmalloc_oom_handler)(size_t) = zmalloc_default_oom;
 
 /* Try allocating memory, and return NULL if failed.
  * '*usable' is set to the usable size if non NULL.
@@ -56,11 +77,20 @@ void *ztrymalloc_usable(size_t size, size_t *usable) {
     void *ptr = malloc(MALLOC_MIN_SIZE(size)+PREFIX_SIZE);
 
     if(!ptr) return NULL;
+#ifdef HAVE_MALLOC_SIZE
+    size = zmalloc_size(ptr);
+    update_zmalloc_stat_alloc(size);
+     if (usable) *usable = size;
+    return ptr;
+#else
+
+#endif
 }
 
 /*内存的分配获取panic Allocate memory or panic */
 void *zmalloc(size_t size) {
     void *ptr = ztrymalloc_usable(size, NULL);
+    if (!ptr) zmalloc_oom_handler(size);
     return ptr;
 }
 

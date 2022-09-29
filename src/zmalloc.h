@@ -38,6 +38,7 @@
 #elif defined(__APPLE__)
 #include <malloc/malloc.h>
 #define HAVE_MALLOC_SIZE 1 // 是否有自带的获取内存块大小的函数
+#define zmalloc_size(p) malloc_size(p) // 调用apple底层获取大小
 #endif
 
 void *zmalloc(size_t size); // 内存分配
