@@ -124,7 +124,7 @@ void _serverLog(int level, const char *fmt, ...) {
     char msg[LOG_MAX_LEN];
 
     va_start(ap, fmt);
-    vsnprintf(msg, sizeof(msg), fmt, ap);
+    vsnprintf(msg, sizeof(msg), fmt, ap);//将格式化的可变参数列表写入大小的缓冲区
     va_end(ap);
 
     serverLogRaw(level,msg);
