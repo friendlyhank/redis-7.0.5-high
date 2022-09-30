@@ -28,6 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+/*
+ * redis内存分配
+ */
+
 #include "config.h"
 
 #include <stdio.h>

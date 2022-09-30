@@ -27,6 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * 服务器核心文件
+ */
+
 #include "server.h"
 
 #include <time.h>

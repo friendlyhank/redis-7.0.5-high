@@ -33,6 +33,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * hash结构
+ */
+
 #include "dict.h"
 
 /*创建一个新的hash表  Create a new hash table */

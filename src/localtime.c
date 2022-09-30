@@ -27,6 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * 本地时间相关设置
+ */
+
 #include <time.h>
 
 void nolocks_localtime(struct tm *tmp, time_t t, time_t tz, int dst) {
