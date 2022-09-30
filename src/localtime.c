@@ -34,5 +34,13 @@
 #include <time.h>
 
 void nolocks_localtime(struct tm *tmp, time_t t, time_t tz, int dst) {
+    const time_t secs_min = 60;
+    const time_t secs_hour = 3600;
+    const time_t secs_day = 3600*24;
 
+    t -= tz;                            /* 修正时区 Adjust for timezone. */
+    tmp->tm_isdst = dst; // 夏令时标识符
+    tmp->tm_hour = seconds / secs_hour; // 小时
+    tmp->tm_min = (seconds % secs_hour) / secs_min; // 分钟
+    tmp->tm_sec = (seconds % secs_hour) % secs_min; // 分
 }

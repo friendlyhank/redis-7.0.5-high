@@ -95,7 +95,7 @@ void serverLogRaw(int level, const char *msg) {
         int role_char; // 日志标识
         pid_t pid = getpid();// 获取进程pid
 
-        gettimeofday(&tv,NULL);
+        gettimeofday(&tv,NULL);// 获取当前时间
         struct tm tm;
         nolocks_localtime(&tm,tv.tv_sec,server.timezone,server.daylight_active);
         off = strftime(buf,sizeof(buf),"%d %b %Y %H:%M:%S.",&tm);
